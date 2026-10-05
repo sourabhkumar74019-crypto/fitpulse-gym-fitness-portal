@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitPulse | Elite Fitness Club & Training Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-body font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Top Navigation Bar -->
+  <header class="header-glass sticky top-0 z-50 border-b transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-orange-500/20">
+          <i class="fa-solid fa-dumbbell text-xl"></i>
+        </div>
+        <div>
+          <span class="text-xl font-black tracking-tight text-brand">FitPulse</span>
+          <span class="block text-[10px] font-extrabold tracking-widest text-orange-500 uppercase">Fitness Arena</span>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-wider">
+        <button onclick="switchTab('classes')" id="nav-classes" class="nav-link active">
+          <i class="fa-solid fa-calendar-days mr-1.5"></i> Class Schedule
+        </button>
+        <button onclick="switchTab('calculator')" id="nav-calculator" class="nav-link">
+          <i class="fa-solid fa-calculator mr-1.5"></i> BMR Calculator
+        </button>
+        <button onclick="switchTab('plans')" id="nav-plans" class="nav-link">
+          <i class="fa-solid fa-bolt mr-1.5"></i> Membership Tiers
+        </button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="nav-link">
+          <i class="fa-solid fa-gear mr-1.5"></i> Settings
+        </button>
+      </nav>
+
+      <!-- Action Controls -->
+      <div class="flex items-center gap-3">
+        <!-- Add Class Button (Gym Admin) -->
+        <button onclick="openAddClassModal()" class="bg-orange-500/10 border border-orange-500/30 text-orange-400 hover:bg-orange-500 hover:text-slate-950 text-xs font-extrabold px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Add Session</span>
+        </button>
+
+        <!-- Auth Button -->
+        <button onclick="openModal('authModal')" id="loginBtn" class="bg-orange-500 hover:bg-orange-400 text-slate-950 text-xs font-extrabold px-3.5 py-2.5 rounded-xl transition shadow-lg shadow-orange-500/20">
+          Member Login
+        </button>
+
+        <!-- Theme Switcher -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-toggle-btn p-2.5 rounded-xl border transition-all flex items-center gap-2 text-xs font-semibold" title="Toggle Theme">
+          <i id="themeIcon" class="fa-solid fa-moon text-orange-400"></i>
+          <span id="themeLabel" class="hidden sm:inline">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- TAB 1: CLASS SCHEDULE & TIMETABLE -->
+  <main id="tab-classes" class="tab-page flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Hero Banner -->
+    <div class="relative rounded-3xl overflow-hidden border card-border shadow-2xl p-8 md:p-12 hero-banner">
+      <div class="max-w-2xl space-y-4 relative z-10">
+        <span class="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+          <i class="fa-solid fa-fire text-xs"></i> Transform Your Physique
+        </span>
+        <h1 class="text-3xl md:text-5xl font-black text-brand leading-tight">Unleash Your Ultimate Strength & Fitness Potential</h1>
+        <p class="text-xs md:text-sm text-sub font-medium leading-relaxed">State-of-the-art equipment, world-class certified trainers, and high-intensity group classes engineered for results.</p>
+      </div>
+    </div>
+
+    <!-- Day Filter Toolbar -->
+    <div class="card-bg rounded-2xl p-4 border card-border flex items-center justify-between flex-wrap gap-3">
+      <span class="text-xs font-extrabold uppercase tracking-wider text-sub">Filter By Day:</span>
+      <div class="flex items-center gap-2 flex-wrap" id="dayFilterGroup">
+        <button onclick="filterClasses('All')" class="day-btn active text-xs font-bold px-3.5 py-1.5 rounded-xl">All Days</button>
+        <button onclick="filterClasses('Mon')" class="day-btn text-xs font-bold px-3.5 py-1.5 rounded-xl">Monday</button>
+        <button onclick="filterClasses('Tue')" class="day-btn text-xs font-bold px-3.5 py-1.5 rounded-xl">Tuesday</button>
+        <button onclick="filterClasses('Wed')" class="day-btn text-xs font-bold px-3.5 py-1.5 rounded-xl">Wednesday</button>
+        <button onclick="filterClasses('Thu')" class="day-btn text-xs font-bold px-3.5 py-1.5 rounded-xl">Thursday</button>
+        <button onclick="filterClasses('Fri')" class="day-btn text-xs font-bold px-3.5 py-1.5 rounded-xl">Friday</button>
+        <button onclick="filterClasses('Sat')" class="day-btn text-xs font-bold px-3.5 py-1.5 rounded-xl">Saturday</button>
+      </div>
+    </div>
+
+    <!-- Class Grid -->
+    <div id="classGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Classes rendered dynamically by JS -->
+    </div>
+  </main>
+
+  <!-- TAB 2: BMR & CALORIE CALCULATOR -->
+  <main id="tab-calculator" class="tab-page flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 hidden">
+    <div class="text-center space-y-2 max-w-xl mx-auto">
+      <h2 class="text-3xl font-extrabold text-brand">BMR & Daily Calorie Calculator</h2>
+      <p class="text-xs text-sub">Calculate your Basal Metabolic Rate and exact daily target calories based on your fitness goals.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <!-- Inputs -->
+      <div class="md:col-span-7 card-bg p-6 rounded-3xl border card-border space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Gender</label>
+            <select id="bmrGender" onchange="calculateBMR()" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Age (Years)</label>
+            <input type="number" id="bmrAge" value="25" oninput="calculateBMR()" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Weight (kg)</label>
+            <input type="number" id="bmrWeight" value="75" oninput="calculateBMR()" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Height (cm)</label>
+            <input type="number" id="bmrHeight" value="178" oninput="calculateBMR()" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Activity Level</label>
+          <select id="bmrActivity" onchange="calculateBMR()" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+            <option value="1.2">Sedentary (Little or no exercise)</option>
+            <option value="1.375" selected>Light Active (Exercise 1-3 days/week)</option>
+            <option value="1.55">Moderate Active (Exercise 3-5 days/week)</option>
+            <option value="1.725">Very Active (Exercise 6-7 days/week)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Results Display -->
+      <div class="md:col-span-5 bg-gradient-to-b from-orange-500/10 to-amber-500/5 p-6 rounded-3xl border border-orange-500/20 flex flex-col justify-between space-y-6">
+        <div class="space-y-4">
+          <span class="text-xs font-extrabold text-orange-500 uppercase tracking-widest block">Metabolic Insights</span>
+          
+          <div>
+            <span class="text-xs text-sub font-semibold">Basal Metabolic Rate (BMR)</span>
+            <h3 id="bmrOutput" class="text-3xl font-black text-brand mt-0.5">1,780 kcal</h3>
+          </div>
+
+          <div class="pt-3 border-t card-border space-y-3">
+            <div>
+              <span class="text-xs text-sub font-semibold">Maintenance Calories</span>
+              <h4 id="tdeeOutput" class="text-2xl font-black text-orange-500">2,448 kcal/day</h4>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2 text-xs font-bold">
+              <div class="bg-slate-900/40 p-2.5 rounded-xl border card-border">
+                <span class="text-[10px] text-sub block">Fat Loss (-500)</span>
+                <span id="fatLossOutput" class="text-emerald-400">1,948 kcal</span>
+              </div>
+              <div class="bg-slate-900/40 p-2.5 rounded-xl border card-border">
+                <span class="text-[10px] text-sub block">Muscle Gain (+300)</span>
+                <span id="muscleGainOutput" class="text-amber-400">2,748 kcal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="openModal('bookingModal')" class="w-full bg-orange-500 hover:bg-orange-400 text-slate-950 font-extrabold text-xs py-3 rounded-2xl transition shadow-xl shadow-orange-500/20">
+          Get Custom Nutrition Plan
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- TAB 3: MEMBERSHIP TIERS -->
+  <main id="tab-plans" class="tab-page flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 hidden">
+    <div class="text-center space-y-3 max-w-xl mx-auto">
+      <h2 class="text-3xl font-extrabold text-brand">Choose Your Training Pass</h2>
+      <p class="text-xs text-sub">Flexible memberships with zero lock-in contracts.</p>
+
+      <!-- Billing Toggle -->
+      <div class="inline-flex items-center gap-3 bg-slate-900/80 p-1.5 rounded-full border card-border mt-2">
+        <span id="monthlyLabel" class="text-xs font-bold text-brand px-3">Monthly</span>
+        <button onclick="togglePlanBilling()" id="planToggle" class="w-12 h-6 bg-orange-500 rounded-full p-1 transition flex items-center">
+          <div id="planToggleCircle" class="w-4 h-4 bg-slate-950 rounded-full transition transform"></div>
+        </button>
+        <span id="annualLabel" class="text-xs font-bold text-sub px-3 flex items-center gap-1">
+          Annual <span class="bg-orange-500/20 text-orange-400 text-[10px] px-2 py-0.5 rounded-full font-extrabold">Save 25%</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Basic -->
+      <div class="card-bg p-6 rounded-3xl border card-border flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-bold text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full uppercase">Basic Gym</span>
+          <div class="mt-4 flex items-baseline gap-1">
+            <span class="text-3xl font-extrabold text-brand plan-price" data-monthly="$49" data-annual="$36">$49</span>
+            <span class="text-xs text-sub">/month</span>
+          </div>
+          <ul class="text-xs text-sub space-y-3 mt-6 font-semibold">
+            <li><i class="fa-solid fa-check text-orange-500 mr-2"></i> Gym Floor Access</li>
+            <li><i class="fa-solid fa-check text-orange-500 mr-2"></i> Locker Room & Showers</li>
+            <li><i class="fa-solid fa-xmark text-slate-600 mr-2"></i> Group Fitness Classes</li>
+          </ul>
+        </div>
+        <button onclick="openModal('bookingModal')" class="w-full mt-8 bg-slate-800 hover:bg-slate-700 text-brand font-bold text-xs py-3 rounded-xl transition">Select Basic</button>
+      </div>
+
+      <!-- Pro Elite -->
+      <div class="card-bg p-6 rounded-3xl border-2 border-orange-500 flex flex-col justify-between relative shadow-xl shadow-orange-500/10">
+        <span class="absolute -top-3 right-6 bg-orange-500 text-slate-950 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">Most Popular</span>
+        <div>
+          <span class="text-xs font-bold text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full uppercase">Pro Elite</span>
+          <div class="mt-4 flex items-baseline gap-1">
+            <span class="text-3xl font-extrabold text-brand plan-price" data-monthly="$89" data-annual="$66">$89</span>
+            <span class="text-xs text-sub">/month</span>
+          </div>
+          <ul class="text-xs text-sub space-y-3 mt-6 font-semibold">
+            <li><i class="fa-solid fa-check text-orange-500 mr-2"></i> All Basic Features</li>
+            <li><i class="fa-solid fa-check text-orange-500 mr-2"></i> Unlimited Group Classes</li>
+            <li><i class="fa-solid fa-check text-orange-500 mr-2"></i> Sauna & Steam Room</li>
+            <li><i class="fa-solid fa-check text-orange-500 mr-2"></i> 2 Personal Training Sessions</li>
+          </ul>
+        </div>
+        <button onclick="openModal('bookingModal')" class="w-full mt-8 bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-orange-500/20">Join Pro Elite</button>
+      </div>
+
+      <!-- VIP Ultimate -->
+      <div class="card-bg p-6 rounded-3xl border card-border flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-bold text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full uppercase">VIP Unlimited</span>
+          <div class="mt-4 flex items-baseline gap-1">
+            <span class="text-3xl font-extrabold text-brand plan-price" data-monthly="$149" data-annual="$110">$149</span>
+            <span class="text-xs text-sub">/month</span>
+          </div>
+          <ul class="text-xs text-sub space-y-3 mt-6 font-semibold">
+            <li><i class="fa-solid fa-check text-orange-500 mr-2"></i> 24/7 VIP Access All Locations</li>
+            <li><i class="fa-solid fa-check text-orange-500 mr-2"></i> Weekly 1-on-1 Personal Trainer</li>
+            <li><i class="fa-solid fa-check text-orange-500 mr-2"></i> Custom Nutrition & Supplement Plan</li>
+          </ul>
+        </div>
+        <button onclick="openModal('bookingModal')" class="w-full mt-8 bg-slate-800 hover:bg-slate-700 text-brand font-bold text-xs py-3 rounded-xl transition">Select VIP</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- MAIN TAB 4: MEMBER SETTINGS HUB -->
+  <main id="tab-settings" class="tab-page flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 hidden">
+    <div>
+      <h2 class="text-2xl font-black text-brand">Member Profile & Settings</h2>
+      <p class="text-xs text-sub">Manage membership credentials, fitness goals, and legal waivers.</p>
+    </div>
+
+    <div class="space-y-6">
+      <div class="card-bg p-6 rounded-3xl border card-border space-y-4">
+        <h3 class="text-base font-extrabold text-brand border-b card-border pb-3">Personal Profile Details</h3>
+        <form onsubmit="handleSettingsSave(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-sub uppercase">Full Name</label>
+              <input type="text" value="Sourabh Kumar" required class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-sub uppercase">Email Address</label>
+              <input type="email" value="sourabh@fitpulse.io" required class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-sub uppercase">Home Club Location</label>
+              <input type="text" value="Downtown Arena - Central" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-sub uppercase">Primary Goal</label>
+              <select class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+                <option value="hypertrophy">Muscle Hypertrophy</option>
+                <option value="fatloss" selected>Fat Loss & Shredding</option>
+                <option value="endurance">Endurance & HIIT</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit" class="bg-orange-500 hover:bg-orange-400 text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-xl transition shadow-lg shadow-orange-500/20">
+              Save Member Profile
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Legal Disclosures -->
+      <div class="card-bg p-6 rounded-3xl border card-border flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h4 class="text-xs font-bold text-brand">Legal & Health Liability Terms</h4>
+          <p class="text-[11px] text-sub">Member safety policy and facility rules.</p>
+        </div>
+        <div class="flex gap-3 text-xs font-bold">
+          <button onclick="openModal('privacyModal')" class="text-orange-400 hover:underline">Privacy Policy</button>
+          <span class="text-slate-600">•</span>
+          <button onclick="openModal('termsModal')" class="text-orange-400 hover:underline">Terms & Waiver</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL 1: ADD / EDIT CLASS (GYM ADMIN CRUD) -->
+  <div id="classModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
+    <div class="card-bg max-w-lg w-full p-6 md:p-8 rounded-3xl border card-border space-y-5 relative my-8">
+      <button onclick="closeModal('classModal')" class="absolute top-6 right-6 text-slate-400 hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+
+      <div>
+        <h3 id="classModalTitle" class="text-xl font-extrabold text-brand">Add Fitness Class Session</h3>
+        <p class="text-xs text-sub mt-1">Schedule new group training or edit existing sessions.</p>
+      </div>
+
+      <form onsubmit="handleClassSubmit(event)" class="space-y-4">
+        <input type="hidden" id="editClassId" value="">
+
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Class Title</label>
+          <input type="text" id="classTitle" required placeholder="Power Crossfit" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Lead Trainer</label>
+            <input type="text" id="classTrainer" required placeholder="Alex Rivera" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Category</label>
+            <input type="text" id="classCategory" required placeholder="High Intensity" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Day of Week</label>
+            <select id="classDay" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+              <option value="Mon">Monday</option>
+              <option value="Tue">Tuesday</option>
+              <option value="Wed">Wednesday</option>
+              <option value="Thu">Thursday</option>
+              <option value="Fri">Friday</option>
+              <option value="Sat">Saturday</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Time Slot</label>
+            <input type="text" id="classTime" required placeholder="07:00 AM" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Banner Image URL</label>
+          <input type="url" id="classImage" required placeholder="https://images.unsplash.com/..." class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+        </div>
+
+        <button type="submit" id="classSubmitBtn" class="w-full bg-orange-500 hover:bg-orange-400 text-slate-950 font-extrabold text-xs py-3 rounded-xl transition shadow-lg shadow-orange-500/20">
+          Save Class Session
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: BOOK FREE PASS / RESERVE SLOT -->
+  <div id="bookingModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="card-bg max-w-md w-full p-6 md:p-8 rounded-3xl border card-border space-y-5 relative">
+      <button onclick="closeModal('bookingModal')" class="absolute top-6 right-6 text-slate-400 hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+
+      <div>
+        <h3 class="text-xl font-black text-brand">Reserve Class Slot / Claim Trial Pass</h3>
+        <p class="text-xs text-sub mt-1">Confirm your spot in upcoming fitness sessions.</p>
+      </div>
+
+      <form onsubmit="handlePassSubmit(event)" class="space-y-4">
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Full Name</label>
+          <input type="text" required placeholder="John Doe..." class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Email Address</label>
+          <input type="email" required placeholder="john@domain.com" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Phone Number</label>
+          <input type="tel" required placeholder="+1 (555) 000-0000" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+        </div>
+
+        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-400 text-slate-950 font-extrabold text-xs py-3 rounded-xl transition shadow-lg shadow-orange-500/20">
+          Confirm Reservation
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: AUTHENTICATION -->
+  <div id="authModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="card-bg max-w-md w-full p-6 rounded-3xl border card-border space-y-4 relative">
+      <button onclick="closeModal('authModal')" class="absolute top-6 right-6 text-slate-400 hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+
+      <div class="text-center space-y-1">
+        <h3 class="text-xl font-black text-brand">Member Portal Sign In</h3>
+        <p class="text-xs text-sub">Access your personal workout plans and class history</p>
+      </div>
+
+      <form onsubmit="handleAuthLogin(event)" class="space-y-3">
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Email Address</label>
+          <input type="email" required value="sourabh@fitpulse.io" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Password</label>
+          <input type="password" required value="password123" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+        </div>
+
+        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-400 text-slate-950 font-extrabold text-xs py-3 rounded-xl transition shadow-lg shadow-orange-500/20">
+          Log In As Member
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: PRIVACY POLICY -->
+  <div id="privacyModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="card-bg max-w-lg w-full p-6 rounded-3xl border card-border space-y-4 relative max-h-[80vh] overflow-y-auto">
+      <button onclick="closeModal('privacyModal')" class="absolute top-6 right-6 text-slate-400 hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+      <h3 class="font-black text-brand text-lg">Privacy & Health Data Notice</h3>
+      <div class="text-xs text-sub space-y-3 leading-relaxed">
+        <p>FitPulse respects user health privacy. BMR metrics and body measurements calculated on this portal are never sold or shared with external advertisers.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: TERMS OF SERVICE -->
+  <div id="termsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="card-bg max-w-lg w-full p-6 rounded-3xl border card-border space-y-4 relative max-h-[80vh] overflow-y-auto">
+      <button onclick="closeModal('termsModal')" class="absolute top-6 right-6 text-slate-400 hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+      <h3 class="font-black text-brand text-lg">Terms & Liability Waiver</h3>
+      <div class="text-xs text-sub space-y-3 leading-relaxed">
+        <p>Members must consult a medical professional prior to commencing high-intensity group classes or heavy resistance training programs.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t card-border py-4 px-6 text-xs text-sub flex justify-between items-center mt-auto">
+    <span>&copy; 2026 FitPulse Fitness Club. All rights reserved.</span>
+    <div class="flex gap-4">
+      <button onclick="openModal('privacyModal')" class="hover:text-brand">Privacy Policy</button>
+      <button onclick="openModal('termsModal')" class="hover:text-brand">Terms</button>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
